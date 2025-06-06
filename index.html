@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Access - Terminal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Courier+New:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            min-height: 100vh;
+            overflow-x: hidden;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .container {
+            background: rgba(0, 20, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 50px auto;
+            max-width: 800px;
+            box-shadow: 
+                0 0 20px #00ff00,
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+            transform: rotateX(5deg) rotateY(-5deg);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .container:hover {
+            transform: rotateX(0deg) rotateY(0deg) scale(1.02);
+            box-shadow: 
+                0 0 30px #00ff00,
+                inset 0 0 30px rgba(0, 255, 0, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            transform: translateZ(30px);
+        }
+
+        .glitch {
+            font-size: 3em;
+            font-weight: bold;
+            text-transform: uppercase;
+            position: relative;
+            color: #00ff00;
+            letter-spacing: 5px;
+            animation: glitch 2s infinite;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            animation: glitch-1 0.5s infinite;
+            color: #ff0000;
+            z-index: -1;
+        }
+
+        .glitch::after {
+            animation: glitch-2 0.5s infinite;
+            color: #0000ff;
+            z-index: -2;
+        }
+
+        .terminal {
+            background: #000;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 14px;
+            transform: translateZ(20px);
+            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .terminal-header {
+            color: #00ff00;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .command {
+            margin: 10px 0;
+            animation: typing 2s steps(40) infinite;
+        }
+
+        .command::before {
+            content: "root@system:~$ ";
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .access-granted {
+            color: #00ff00;
+            font-size: 1.5em;
+            text-align: center;
+            margin: 20px 0;
+            animation: blink 1s infinite;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .info-card {
+            background: rgba(0, 50, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 15px 0;
+            transform: translateZ(15px);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateZ(25px);
+            background: rgba(0, 70, 0, 0.7);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .info-card h3 {
+            color: #00ff00;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+        }
+
+        .warning {
+            color: #ff0000;
+            background: rgba(50, 0, 0, 0.5);
+            border: 1px solid #ff0000;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            animation: warning-blink 2s infinite;
+        }
+
+        .signature {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 1.5em;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            10% { transform: translate(-2px, 2px); }
+            20% { transform: translate(2px, -2px); }
+            30% { transform: translate(-2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            50% { transform: translate(-2px, 2px); }
+            60% { transform: translate(2px, -2px); }
+            70% { transform: translate(-2px, -2px); }
+            80% { transform: translate(2px, 2px); }
+            90% { transform: translate(-2px, 2px); }
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(0); }
+            10% { transform: translate(-2px, -2px); }
+            20% { transform: translate(2px, 2px); }
+            30% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -2px); }
+            50% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            70% { transform: translate(-2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            90% { transform: translate(-2px, -2px); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(0); }
+            10% { transform: translate(2px, 2px); }
+            20% { transform: translate(-2px, -2px); }
+            30% { transform: translate(2px, -2px); }
+            40% { transform: translate(-2px, 2px); }
+            50% { transform: translate(2px, 2px); }
+            60% { transform: translate(-2px, -2px); }
+            70% { transform: translate(2px, -2px); }
+            80% { transform: translate(-2px, 2px); }
+            90% { transform: translate(2px, 2px); }
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        @keyframes typing {
+            0%, 50% { border-right: 2px solid #00ff00; }
+            51%, 100% { border-right: none; }
+        }
+
+        @keyframes warning-blink {
+            0%, 50% { 
+                background: rgba(50, 0, 0, 0.5);
+                box-shadow: 0 0 5px #ff0000;
+            }
+            51%, 100% { 
+                background: rgba(80, 0, 0, 0.8);
+                box-shadow: 0 0 15px #ff0000;
+            }
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00ff00; }
+            to { text-shadow: 0 0 20px #00ff00; }
+        }
+
+        .matrix-char {
+            position: absolute;
+            color: #00ff00;
+            font-size: 20px;
+            animation: matrix-fall 3s linear infinite;
+        }
+
+        @keyframes matrix-fall {
+            0% { 
+                transform: translateY(-100vh);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+                transform: none;
+            }
+            
+            .glitch {
+                font-size: 2em;
+                letter-spacing: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg" id="matrix"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="glitch" data-text="SYSTEM COMPROMISED">SYSTEM COMPROMISED</div>
+        </div>
+
+        <div class="terminal">
+            <div class="terminal-header">[TERMINAL ACCESS GRANTED]</div>
+            <div class="command">Scanning network vulnerabilities...</div>
+            <div class="command">Exploiting weak authentication...</div>
+            <div class="command">Bypassing security protocols...</div>
+            <div class="command">Privilege escalation successful...</div>
+        </div>
+
+        <div class="access-granted">>>> ACCESS GRANTED <<<</div>
+
+        <div class="info-card">
+            <h3>System Information</h3>
+            <p>Target: Domain Infrastructure</p>
+            <p>Status: Fully Compromised</p>
+            <p>Permissions: Administrator</p>
+            <p>Encryption: Bypassed</p>
+        </div>
+
+        <div class="info-card">
+            <h3>Network Status</h3>
+            <p>Firewall: Disabled</p>
+            <p>Intrusion Detection: Offline</p>
+            <p>Security Logs: Cleared</p>
+            <p>Backdoor: Installed</p>
+        </div>
+
+        <div class="warning">
+            ⚠️ WARNING: Unauthorized access detected. System security has been compromised.
+            All activities are being logged for security analysis.
+        </div>
+
+        <div class="signature">
+            - TAKEOVER BY AJJU -
+        </div>
+    </div>
+
+    <script>
+        // Matrix background effect
+        function createMatrix() {
+            const matrix = document.getElementById('matrix');
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            
+            for (let i = 0; i < 50; i++) {
+                const span = document.createElement('span');
+                span.className = 'matrix-char';
+                span.style.left = Math.random() * 100 + '%';
+                span.style.animationDelay = Math.random() * 3 + 's';
+                span.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                span.textContent = chars[Math.floor(Math.random() * chars.length)];
+                matrix.appendChild(span);
+            }
+        }
+
+        // Mouse tracking for 3D effect
+        document.addEventListener('mousemove', (e) => {
+            const container = document.querySelector('.container');
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            const rotateX = (y / rect.height) * 10;
+            const rotateY = (x / rect.width) * 10;
+            
+            container.style.transform = `rotateX(${5 - rotateX}deg) rotateY(${-5 + rotateY}deg)`;
+        });
+
+        // Initialize matrix effect
+        createMatrix();
+
+        // Add some terminal typing effect
+        let commandIndex = 0;
+        const commands = document.querySelectorAll('.command');
+        
+        function typeCommand() {
+            if (commandIndex < commands.length) {
+                commands[commandIndex].style.display = 'block';
+                commandIndex++;
+                setTimeout(typeCommand, 1000);
+            }
+        }
+
+        // Hide commands initially and start typing effect
+        commands.forEach(cmd => cmd.style.display = 'none');
+        setTimeout(typeCommand, 1000);
+    </script>
+</body>
+</html>
